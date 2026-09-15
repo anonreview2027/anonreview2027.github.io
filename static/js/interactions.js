@@ -31,6 +31,22 @@
     { id: 20, name: "Workshop", category: "special", instances: 127 },
   ];
 
+  // Unique display names: room types that occur more than once get a number
+  // in location order ("Office 1", "Office 2"); single ones stay as they are.
+  // `name` keeps the plain room type for the room-type chart.
+  (function assignLabels() {
+    const total = {};
+    scenes.forEach((s) => (total[s.name] = (total[s.name] || 0) + 1));
+    const seen = {};
+    scenes
+      .slice()
+      .sort((a, b) => a.id - b.id)
+      .forEach((s) => {
+        seen[s.name] = (seen[s.name] || 0) + 1;
+        s.label = total[s.name] > 1 ? `${s.name} ${seen[s.name]}` : s.name;
+      });
+  })();
+
   const categoryLabel = { work: "work & study", home: "home", special: "specialized" };
 
   const C = {
@@ -56,7 +72,7 @@
     const maxInst = Math.max(...scenes.map((s) => s.instances));
     let visible = activeFilter === "all" ? scenes.slice() : scenes.filter((s) => s.category === activeFilter);
     if (activeSort === "instances") visible.sort((a, b) => b.instances - a.instances);
-    else if (activeSort === "name") visible.sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id);
+    else if (activeSort === "name") visible.sort((a, b) => a.label.localeCompare(b.label, "en", { numeric: true }));
     else visible.sort((a, b) => a.id - b.id);
 
     grid.innerHTML = visible
@@ -71,7 +87,7 @@
           <article class="scene-card" data-category="${scene.category}">
             <svg viewBox="0 0 320 200" aria-hidden="true">${svgInner}</svg>
             <div class="meta">
-              <div class="loc">${scene.name}</div>
+              <div class="loc">${scene.label}</div>
               <div class="sub">Location${number} · ${categoryLabel[scene.category]}</div>
               <div class="sub">${scene.instances} instances</div>
               <div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:${(scene.instances / maxInst) * 100}%"></div></div>
@@ -229,7 +245,7 @@
       items: scenes
         .slice()
         .sort((a, b) => b.instances - a.instances)
-        .map((s) => ({ label: `Loc${String(s.id).padStart(2, "0")} · ${s.name}`, value: s.instances })),
+        .map((s) => ({ label: `Loc${String(s.id).padStart(2, "0")} · ${s.label}`, value: s.instances })),
       rowH: 11.4,
       padL: 130,
       note: "mean 115 · range 49–187",
