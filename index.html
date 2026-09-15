@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="SceneGraphDataset: real indoor RGB-D scenes captured in a 2×2 factorial of physical states and illumination plus a third state captured under natural light only, over survey-grade laser reference, with human-verified 2D and 3D instance masks and three benchmarks (SCD, OVVIS, EQA).">
+  <meta name="keywords" content="dataset, RGB-D, scene change detection, open-vocabulary video instance segmentation, embodied question answering, indoor scenes, laser scan, instance segmentation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SceneGraphDataset: Disentangling Layout and Illumination Change in Real Indoor Scenes</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/custom.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/placeholders.js"></script>
+  <script src="./static/js/charts.js"></script>
+  <script src="./static/js/cloudviewer.js"></script>
+  <script src="./static/js/interactions.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div id="navbarBasic" class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="#top" aria-label="Top of page"><span class="icon"><i class="fas fa-home"></i></span></a>
+      <a class="navbar-item" href="#data">Data</a>
+      <a class="navbar-item" href="#protocol">States &amp; light</a>
+      <a class="navbar-item" href="#scenes">Scenes</a>
+      <a class="navbar-item" href="#benchmarks">Benchmarks</a>
+      <a class="navbar-item" href="#download">Download</a>
+      <a class="navbar-item" href="#BibTeX">BibTeX</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="top">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            <span class="dnerf">SceneGraphDataset</span>: Disentangling Layout and Illumination Change in Real Indoor Scenes
+          </h1>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><a href="#">Author One</a><sup>1*</sup>,</span>
+            <span class="author-block"><a href="#">Author Two</a><sup>1*</sup>,</span>
+            <span class="author-block"><a href="#">Author Three</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="#">Author Four</a><sup>1</sup>,</span>
+            <span class="author-block"><a href="#">Author Five</a><sup>1</sup></span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Institution</span>
+            <span class="author-block" style="color:#888;font-size:0.85em;">&nbsp;·&nbsp;<sup>*</sup>equal contribution</span>
+          </div>
+          <div class="is-size-6" style="color:#666;margin-top:0.25rem;">Submitted to ICRA 2027</div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark" aria-disabled="true" onclick="return false;">
+                  <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark" aria-disabled="true" onclick="return false;">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code &amp; benchmarks</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#download" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fas fa-database"></i></span>
+                  <span>Dataset</span>
+                </a>
+              </span>
+            </div>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hs"><b>20</b><span>real indoor scenes<br>from kindergarten to warehouse</span></div>
+            <div class="hs"><b>3</b><span>physical states<br>initial → anchor changes → anchor + clutter</span></div>
+            <div class="hs"><b>2</b><span>illumination conditions<br>artificial · natural</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TEASER: 2 x 2 CORE + STATE 3 ===================== -->
+<section class="hero teaser" id="teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body" style="padding-top:0;">
+      <div class="matrix-controls">
+        <label class="checkbox matrix-toggle">
+          <input type="checkbox" id="toggle-changes" checked>
+          Show change boxes
+        </label>
+        <div class="chg-legend" aria-hidden="true">
+          <span><i class="sw sw-removed"></i>removed</span>
+          <span><i class="sw sw-moved"></i>relocated</span>
+          <span><i class="sw sw-added"></i>added</span>
+        </div>
+      </div>
+
+      <div class="state-matrix show-changes" id="state-matrix" role="table" aria-label="Core 2 by 2 grid of states and illumination, plus state 3 under natural light only">
+        <div class="mx-corner" role="presentation"></div>
+        <div class="mx-col" role="columnheader"><i class="fas fa-lightbulb"></i> Artificial (lights on)</div>
+        <div class="mx-col" role="columnheader"><i class="fas fa-sun"></i> Natural (daylight)</div>
+
+        <div class="mx-row" role="rowheader"><b>State 1</b><span>initial layout</span></div>
+        <figure class="ph mx-cell" data-seq="state1_art"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-boxes="1" viewBox="0 0 320 200"></svg><figcaption><code>state1_art</code></figcaption></figure>
+        <figure class="ph mx-cell" data-seq="state1_nat"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="nat" data-boxes="1" viewBox="0 0 320 200"></svg><figcaption><code>state1_nat</code></figcaption></figure>
+
+        <div class="mx-row" role="rowheader"><b>State 2</b><span>anchor objects changed</span></div>
+        <figure class="ph mx-cell" data-seq="state2_art"><svg class="scene-ph" data-mod="rgb" data-state="2" data-light="art" data-boxes="1" viewBox="0 0 320 200"></svg><figcaption><code>state2_art</code></figcaption></figure>
+        <figure class="ph mx-cell" data-seq="state2_nat"><svg class="scene-ph" data-mod="rgb" data-state="2" data-light="nat" data-boxes="1" viewBox="0 0 320 200"></svg><figcaption><code>state2_nat</code></figcaption></figure>
+
+        <div class="mx-sep" role="presentation"><span>State 3 · natural light only</span></div>
+
+        <div class="mx-row" role="rowheader"><b>State 3</b><span>+ anchor &amp; clutter changes</span></div>
+        <figure class="ph mx-cell mx-wide" data-seq="state3_nat"><svg class="scene-ph" data-mod="rgb" data-state="3" data-light="nat" data-boxes="1" viewBox="0 0 320 200"></svg><figcaption><code>state3_nat</code></figcaption></figure>
+      </div>
+
+      <p class="has-text-centered matrix-caption">
+        The core of every scene is a <b>2 × 2 factorial</b>: two physical states × two illumination conditions.
+        Within a row the geometry is identical and only the light changes; within a column the light is fixed and only objects change.
+        A third, cumulative state adds a few more anchor changes and fine-grained clutter, and is captured under natural light only.
+        Change boxes are drawn relative to state 1, so state 3 keeps the state 2 boxes and adds its own.
+        <br><span class="placeholder-note">placeholder frames — replace with five similar-viewpoint frames from one demo scene</span>
+      </p>
+
+      <h2 class="subtitle has-text-centered" style="margin-top:1.25rem;">
+        A real-world RGB-D dataset that separates <b>what moved</b> from <b>what merely looks different</b> —
+        over a survey-grade laser reference, with human-verified 2D and 3D instance masks that keep their identities across states.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ABSTRACT ===================== -->
+<section class="section" id="abstract">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Robust robotic perception in dynamic human spaces requires distinguishing physical geometric changes from mere
+            appearance variations. When a robot revisits a scene and its map or perception model fails, the cause may be
+            <em>geometric</em> — objects were moved, added, or removed — or <em>appearance-based</em> — the same geometry
+            looks different under changed lighting. Existing indoor datasets either hold the scene static, conflate the two
+            sources of change, or lack independent reference geometry to verify what actually changed.
+          </p>
+          <p>
+            We present <span class="dnerf">SceneGraphDataset</span>, an indoor RGB-D dataset designed to strictly disentangle
+            layout modifications from illumination shifts. Each of 20 diverse real-world scenes is captured in a
+            core 2 × 2 factorial design — two physical layout states observed under artificial and natural light, so that
+            any two sequences in the same row or column differ in exactly one factor — supplemented by a third, high-clutter state
+            captured under natural light only. Every state is grounded in a terrestrial laser scan,
+            and every RGB frame carries a manually labelled and verified instance mask whose identity persists across
+            frames, sequences, and states. We introduce three benchmarks on top of the data — Scene Change Detection,
+            Open-Vocabulary Video Instance Segmentation, and Embodied Question Answering — and show that state-of-the-art
+            models still hallucinate changes under illumination shifts, lose track of small and rare objects, and struggle
+            to reason about how a scene evolved.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WHY IT IS DIFFERENT ===================== -->
+<section class="section" id="why" style="padding-top:0;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Three things you cannot get elsewhere</h2>
+      </div>
+    </div>
+
+    <div class="columns is-multiline">
+      <div class="column is-one-third">
+        <div class="feature-card">
+          <h3 class="title is-5">Layout and light as independent axes</h3>
+          <div class="ba-wrap" id="ba-diff-card" aria-label="Drag to compare state 1 and state 2 under the same natural light">
+            <svg class="scene-ph" data-mod="rgb" data-state="2" data-light="nat" viewBox="0 0 400 250"></svg>
+            <div class="ba-top"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="nat" viewBox="0 0 400 250"></svg></div>
+            <div class="ba-handle" style="left:50%;"></div>
+            <span class="ba-label left">state 1 · nat</span>
+            <span class="ba-label right">state 2 · nat</span>
+          </div>
+          <p class="feature-text">
+            Static benchmarks (ScanNet, ScanNet++) never revisit a scene; revisit datasets (3RScan) leave lighting uncontrolled.
+            Here each factor can be varied on its own, so a failure is attributed to <em>geometry</em> or to <em>appearance</em> instead of being left ambiguous.
+          </p>
+        </div>
+      </div>
+
+      <div class="column is-one-third">
+        <div class="feature-card">
+          <h3 class="title is-5">Artifact-free 2D masks with persistent IDs</h3>
+          <div class="mask-pair">
+            <figure class="ph"><svg class="scene-ph" data-mod="rgb" data-state="2" data-light="art" viewBox="0 0 320 200"></svg><figcaption>RGB frame</figcaption></figure>
+            <figure class="ph"><svg class="scene-ph" data-mod="mask" data-state="2" viewBox="0 0 320 200"></svg><figcaption>verified instance mask</figcaption></figure>
+          </div>
+          <p class="feature-text">
+            Masks are annotated <em>on the images</em> and verified frame by frame — not projected from a labelled mesh
+            with its boundary artifacts. The same object keeps the same ID in every frame, sequence, and state, in 2D and in 3D.
+          </p>
+        </div>
+      </div>
+
+      <div class="column is-one-third">
+        <div class="feature-card">
+          <h3 class="title is-5">A survey-grade reference for every state</h3>
+          <figure class="ph"><svg class="scene-ph" data-mod="poses" data-state="1" viewBox="0 0 320 200"></svg><figcaption>laser reference cloud with registered camera poses</figcaption></figure>
+          <p class="feature-text">
+            Laser-scanned datasets (ScanNet++, ARKitScenes) give one static snapshot. Here every state has its own terrestrial
+            scan, so object-level changes are measured rather than inferred from a depth reconstruction — and reference clouds,
+            change lists, and camera poses of all sequences live in one metric coordinate frame.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lighting gap strip -->
+    <div class="columns is-centered" style="margin-top:1.5rem;">
+      <div class="column is-full">
+        <h3 class="title is-5 has-text-centered">The lighting gap is real and it varies</h3>
+        <p class="has-text-centered" style="color:#555;font-size:0.95rem;">
+          Press and hold a tile (or hover) to switch from artificial to natural light. Some rooms barely change; some flip completely.
+          Windowless rooms get the natural condition emulated with auxiliary lamps.
+        </p>
+        <div class="light-strip" id="light-strip">
+          <figure class="ph light-tile" data-variant="0"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="0" viewBox="0 0 320 200"></svg><figcaption>office · strong daylight</figcaption></figure>
+          <figure class="ph light-tile" data-variant="1"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="1" viewBox="0 0 320 200"></svg><figcaption>laboratory · mild</figcaption></figure>
+          <figure class="ph light-tile" data-variant="2"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="2" viewBox="0 0 320 200"></svg><figcaption>kitchen · warm daylight</figcaption></figure>
+          <figure class="ph light-tile" data-variant="3"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="3" viewBox="0 0 320 200"></svg><figcaption>warehouse · windowless, emulated</figcaption></figure>
+        </div>
+        <p class="has-text-centered"><span class="placeholder-note">placeholder tiles — pick 4 locations with visibly different art/nat gaps</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== USE CASES ===================== -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">What you can do with it</h2>
+    <div class="usecase-tags" style="margin-top:1rem;">
+      <span class="tag is-medium is-dark is-rounded">Scene change detection</span>
+      <span class="tag is-medium is-dark is-rounded">Open-vocabulary video instance segmentation</span>
+      <span class="tag is-medium is-dark is-rounded">Embodied question answering</span>
+      <span class="tag is-medium is-dark is-rounded">Scene-graph / map update across revisits</span>
+      <span class="tag is-medium is-dark is-rounded">Object re-identification across states</span>
+      <span class="tag is-medium is-dark is-rounded">Illumination-robust perception</span>
+      <span class="tag is-medium is-dark is-rounded">Gaussian Splatting &amp; novel-view synthesis under change</span>
+      <span class="tag is-medium is-dark is-rounded">Joint 2D–3D instance segmentation</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DATA ===================== -->
+<section class="section" id="data">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Data</h2>
+        <p style="margin-bottom:1rem;color:#555;">
+          Per sequence: continuous RGB-D video, dense camera poses, and a verified instance mask on every frame.
+          Per state: a laser reference point cloud with per-point instance labels and the list of what changed.
+        </p>
+      </div>
+    </div>
+
+    <div class="modality-grid">
+      <figure class="ph"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" viewBox="0 0 320 200"></svg><figcaption>RGB</figcaption></figure>
+      <figure class="ph"><svg class="scene-ph" data-mod="depth" data-state="1" viewBox="0 0 320 200"></svg><figcaption>Aligned depth</figcaption></figure>
+      <figure class="ph"><svg class="scene-ph" data-mod="mask" data-state="1" viewBox="0 0 320 200"></svg><figcaption>2D instance mask</figcaption></figure>
+      <figure class="ph"><svg class="scene-ph" data-mod="cloud" data-state="1" viewBox="0 0 320 200"></svg><figcaption>3D instance labels (laser cloud)</figcaption></figure>
+    </div>
+    <p class="has-text-centered" style="margin-top:0.5rem;"><span class="placeholder-note">placeholder modalities — replace with one real frame in all four modalities</span></p>
+
+    <!-- Interactive point cloud -->
+    <div class="columns is-centered" style="margin-top:2rem;">
+      <div class="column is-full">
+        <h3 class="title is-4 has-text-centered">Reference cloud, instance labels, and camera poses — in one frame</h3>
+        <div class="cloud-viewer" id="cloud-viewer" data-ply="">
+          <canvas aria-label="Interactive 3D point cloud. Drag to orbit, ctrl-drag or right button to pan, scroll to zoom, double-click to focus on a point; arrow keys pan, Q/E turn, R/F tilt, plus and minus zoom, 0 resets"></canvas>
+          <div class="cv-toolbar">
+            <div class="buttons has-addons cv-state">
+              <button class="button is-small is-selected-mode" type="button" data-cv-state="1">state 1</button>
+              <button class="button is-small" type="button" data-cv-state="2">state 2</button>
+              <button class="button is-small" type="button" data-cv-state="3">state 3</button>
+            </div>
+            <div class="buttons has-addons cv-color">
+              <button class="button is-small is-selected-mode" type="button" data-cv-color="instance">instance colors</button>
+              <button class="button is-small" type="button" data-cv-color="rgb">RGB</button>
+            </div>
+            <label class="checkbox cv-poses"><input type="checkbox" data-cv-poses checked> camera poses</label>
+            <button class="button is-small is-white" type="button" data-cv-reset title="Reset view" aria-label="Reset view"><span class="icon is-small"><i class="fas fa-undo"></i></span></button>
+          </div>
+          <div class="cv-hint">drag · orbit &nbsp; ctrl + drag or right button · pan &nbsp; scroll · zoom &nbsp; double-click · focus &nbsp; arrows / WASD · move</div>
+        </div>
+        <p class="has-text-centered" style="font-size:0.85rem;color:#666;margin-top:0.5rem;">
+          All three states' clouds and all five trajectories share one coordinate frame, so switching states moves only the objects that actually changed.
+          <br><span class="placeholder-note">synthetic cloud — the viewer loads a real downsampled PLY when <code>data-ply</code> is set</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Acquisition + annotation in two compact columns -->
+    <div class="columns" style="margin-top:2rem;">
+      <div class="column is-half">
+        <h3 class="title is-5">Acquisition</h3>
+        <table class="table is-fullwidth is-narrow spec-table">
+          <tbody>
+            <tr><th scope="row">RGB-D</th><td>Intel RealSense D456, global shutter, 1280 × 800 @ 30 fps, hardware-aligned depth</td></tr>
+            <tr><th scope="row">Reference</th><td>Leica BLK360 G1 terrestrial scan per state, 5 mm resolution, HDR panoramas</td></tr>
+            <tr><th scope="row">Capture</th><td>Handheld walkthrough of 1–3 min per sequence; one operator per scene for trajectory consistency</td></tr>
+            <tr><th scope="row">Poses</th><td>COLMAP over RGB frames + scanner thumbnails, Umeyama/RANSAC alignment to the laser frame, ICP across states; 3 fps</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="column is-half">
+        <h3 class="title is-5">Annotation</h3>
+        <table class="table is-fullwidth is-narrow spec-table">
+          <tbody>
+            <tr><th scope="row">2D masks</th><td>Keyframes labelled in CVAT with SAM, propagated with SAM2 video tracking, corrected on intermediate keyframes, then verified frame by frame</td></tr>
+            <tr><th scope="row">3D labels</th><td>Verified masks projected onto the reference cloud with multi-view majority voting, then manually refined in a 3D editor</td></tr>
+            <tr><th scope="row">Identities</th><td>One instance ID per object, shared between 2D and 3D and preserved across all states and sequences</td></tr>
+            <tr><th scope="row">Changes</th><td>Per-scene list of added / removed / relocated objects for each state transition</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STATES & ILLUMINATION ===================== -->
+<section class="section hero is-light" id="protocol">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">States and illumination</h2>
+    <p class="has-text-centered" style="margin-bottom:1.5rem;color:#555;">
+      A <em>state</em> is a physical configuration of the scene — which objects are present and where they are, as captured in that state's laser scan.
+      States are cumulative: the core states 1 and 2 are recorded under both illumination conditions, state 3 under natural light only.
+    </p>
+
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <div class="protocol-grid">
+          <div class="protocol-card">
+            <div class="title is-6">state 1</div>
+            <figure class="ph"><svg class="scene-ph" data-mod="topdown" data-state="1" viewBox="0 0 320 240"></svg></figure>
+            <p class="protocol-desc">Initial layout</p>
+          </div>
+          <div class="protocol-arrow">→</div>
+          <div class="protocol-card">
+            <div class="title is-6">state 2</div>
+            <figure class="ph"><svg class="scene-ph" data-mod="topdown" data-state="2" viewBox="0 0 320 240"></svg></figure>
+            <p class="protocol-desc"><b>4–6 anchor-object changes</b> vs. state 1 — tables, chairs, cabinets added, removed, or relocated</p>
+          </div>
+          <div class="protocol-arrow">→</div>
+          <div class="protocol-card">
+            <div class="title is-6">state 3</div>
+            <figure class="ph"><svg class="scene-ph" data-mod="topdown" data-state="3" viewBox="0 0 320 240"></svg></figure>
+            <p class="protocol-desc"><b>+2–3 anchor</b> and <b>+6–8 clutter-object changes</b> vs. state 2 — cups, books, parts, tools</p>
+          </div>
+        </div>
+        <p class="has-text-centered" style="font-size:0.85rem;color:#666;margin-top:0.6rem;">
+          Two change scales on purpose: coarse layout shifts stress registration, fine clutter stresses detection.
+          <span class="placeholder-note">top-down views are synthetic — replace with real top-down renders of one scene</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="columns is-centered" style="margin-top:1.5rem;">
+      <div class="column is-half">
+        <h3 class="title is-5 has-text-centered">Sequences per scene</h3>
+        <table class="table is-fullwidth is-narrow seq-table">
+          <thead><tr><th scope="col">core 2 × 2</th><th scope="col"><i class="fas fa-lightbulb"></i> artificial</th><th scope="col"><i class="fas fa-sun"></i> natural</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">state 1</th><td><code>state1_art</code></td><td><code>state1_nat</code></td></tr>
+            <tr><th scope="row">state 2</th><td><code>state2_art</code></td><td><code>state2_nat</code></td></tr>
+          </tbody>
+        </table>
+        <table class="table is-fullwidth is-narrow seq-table">
+          <thead><tr><th scope="col"><span class="is-sr-only">state</span></th><th scope="col"><i class="fas fa-sun"></i> natural light only</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">state 3</th><td><code>state3_nat</code> — fine-grained clutter, everyday lighting</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:0.9rem;color:#555;">
+          In the core, any two sequences in the same row are a pure <em>illumination</em> pair and any two in the same column a pure <em>layout</em> pair;
+          diagonal pairs combine both. State 3 adds fine-grained clutter on top of state 2 and is recorded under natural light only.
+        </p>
+      </div>
+      <div class="column is-half">
+        <h3 class="title is-5 has-text-centered">Mean object changes per scene</h3>
+        <div class="chart" id="chart-transitions"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STATISTICS ===================== -->
+<section class="section" id="stats">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Dataset at a glance</h2>
+    <div class="columns is-multiline is-centered" style="margin-top:0.5rem;">
+      <div class="column is-3"><div class="stat-box"><div class="num">100</div><div class="lbl">RGB-D sequences<br><small>20 scenes × (2 × 2 core + state 3 · nat)</small></div></div></div>
+      <div class="column is-3"><div class="stat-box"><div class="num">2,301</div><div class="lbl">labelled instances<br><small>49–187 per scene, mean 115</small></div></div></div>
+      <div class="column is-3"><div class="stat-box"><div class="num">60</div><div class="lbl">laser reference scans<br><small>one per scene state</small></div></div></div>
+      <div class="column is-3"><div class="stat-box"><div class="num">12</div><div class="lbl">room types<br><small>homes, offices, labs, a workshop, a warehouse…</small></div></div></div>
+    </div>
+
+    <div class="columns" style="margin-top:1rem;">
+      <div class="column is-half">
+        <h3 class="title is-5 has-text-centered">Where the scenes are</h3>
+        <div class="chart" id="chart-locations"></div>
+      </div>
+      <div class="column is-half">
+        <h3 class="title is-5 has-text-centered">Labelled instances per scene</h3>
+        <div class="chart" id="chart-instances"></div>
+      </div>
+    </div>
+    <p class="has-text-centered" style="font-size:0.85rem;color:#666;">
+      The object vocabulary is long-tailed: a few structural and furniture classes (wall, box, chair, cabinet, table) account for most instances,
+      while a long tail of rare objects — microscope, multimeter, easel, boomerang — occurs once or twice.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== SCENE CATALOG ===================== -->
+<section class="section hero is-light" id="scenes">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Explore the 20 scenes</h2>
+        <p style="margin-bottom:1rem;color:#555;">
+          Know what you are downloading before you download everything.
+          <br><span class="placeholder-note">placeholder previews — replace with one real frame per location</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="filter-bar" role="group" aria-label="Filter and sort scenes">
+      <button class="button is-rounded is-active-filter" type="button" data-filter="all" aria-pressed="true">All · 20</button>
+      <button class="button is-rounded" type="button" data-filter="work" aria-pressed="false">Work &amp; study</button>
+      <button class="button is-rounded" type="button" data-filter="home" aria-pressed="false">Home</button>
+      <button class="button is-rounded" type="button" data-filter="special" aria-pressed="false">Specialized</button>
+      <span class="filter-sep" aria-hidden="true"></span>
+      <div class="select is-rounded is-small">
+        <select id="scene-sort" aria-label="Sort scenes">
+          <option value="id">Sort: location number</option>
+          <option value="instances">Sort: most instances</option>
+          <option value="name">Sort: room type</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="catalog-grid" id="scene-grid" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ===================== BENCHMARKS ===================== -->
+<section class="section" id="benchmarks">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Three benchmarks, one perception-to-reasoning pipeline</h2>
+        <p style="color:#555;">
+          From detecting that something changed, to tracking every object through time, to answering questions about how the scene evolved.
+          All baselines run out of the box with official weights — no fine-tuning on our data.
+        </p>
+      </div>
+    </div>
+
+    <!-- SCD -->
+    <div class="bench" id="bench-scd">
+      <div class="columns">
+        <div class="column is-5">
+          <h3 class="title is-4"><span class="bench-num">1</span> Scene Change Detection</h3>
+          <p>
+            Given a reference and a target image from the <em>same camera pose</em>, predict the pixels that changed —
+            added, removed, or relocated objects. Reference views are rendered from a 3D Gaussian Splatting model of
+            <code>state1_art</code> at the exact poses of the target sequence, so pairs are perfectly aligned; ground truth
+            unites verified 2D masks of the target state with 3D projections of former object locations.
+          </p>
+          <p><b>600 image pairs</b> · 30 per scene · real targets under both lighting conditions, plus no-change control pairs.</p>
+          <div class="scd-triplet">
+            <figure class="ph"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" viewBox="0 0 320 200"></svg><figcaption>reference (rendered, state 1)</figcaption></figure>
+            <figure class="ph"><svg class="scene-ph" data-mod="rgb" data-state="2" data-light="nat" viewBox="0 0 320 200"></svg><figcaption>target (real, state 2 · nat)</figcaption></figure>
+            <figure class="ph"><svg class="scene-ph" data-mod="change" data-state="2" viewBox="0 0 320 200"></svg><figcaption>GT change mask</figcaption></figure>
+          </div>
+        </div>
+        <div class="column is-7">
+          <h4 class="title is-6 has-text-centered">F1 on pairs with real layout changes</h4>
+          <div class="chart" id="chart-scd"></div>
+          <table class="table is-fullwidth is-narrow ctrl-table">
+            <caption>Specificity on no-change control pairs (identical layout to the reference)</caption>
+            <thead><tr><th scope="col">target</th><th scope="col">GeoSCD</th><th scope="col">GeSCF</th><th scope="col">RSCD</th></tr></thead>
+            <tbody>
+              <tr><td><code>state1_art</code> · same light</td><td>0.992</td><td><b>0.999</b></td><td>0.912</td></tr>
+              <tr><td><code>state1_nat</code> · light changed</td><td>0.921 <span class="delta">−0.071</span></td><td><b>0.980</b> <span class="delta">−0.019</span></td><td>0.904 <span class="delta">−0.008</span></td></tr>
+            </tbody>
+          </table>
+          <p class="bench-takeaway">
+            <b>Lighting alone fools every method.</b> On <code>state1_nat</code> nothing physically changed, yet specificity drops for all three
+            methods compared with <code>state1_art</code> — they hallucinate geometric change from appearance.
+            GeSCF is the most accurate overall; GeoSCD recalls the most but over-predicts at ~17 s per pair; RSCD is fastest (0.37 s) but least precise.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVVIS -->
+    <div class="bench" id="bench-ovvis">
+      <div class="columns">
+        <div class="column is-5">
+          <h3 class="title is-4"><span class="bench-num">2</span> Open-Vocabulary Video Instance Segmentation</h3>
+          <p>
+            Detect, segment, and track every object through a sequence with no fixed label set, keeping identities through
+            occlusion and appearance change. Built on six locations, 30-second clips at 5 fps, with labels split by
+            linguistic frequency (<em>common</em> vs. <em>uncommon</em> head nouns) and by 3D size (<em>small</em> &lt; 0.1 m³, <em>medium</em>, <em>large</em> ≥ 1 m³).
+          </p>
+          <p>Metrics follow BURST: HOTA (detection × association) and Track mAP.</p>
+        </div>
+        <div class="column is-7">
+          <h4 class="title is-6 has-text-centered">HOTA by label split, averaged over the six locations</h4>
+          <div class="chart" id="chart-ovvis"></div>
+          <p class="bench-takeaway">
+            <b>Small and rare objects are where tracking breaks.</b> SAM3 leads by a wide margin (HOTA 18.2 vs. &lt; 3 for GLEE and Ov2Seg) at 2.9 s per frame,
+            yet loses more than half of its score from large to small objects (32.5 → 13.4) and drops sharply on uncommon classes.
+            Cluttered locations push the lighter models to near zero.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQA -->
+    <div class="bench" id="bench-eqa">
+      <div class="columns">
+        <div class="column is-5">
+          <h3 class="title is-4"><span class="bench-num">3</span> Embodied Question Answering</h3>
+          <p>
+            Answer natural-language questions about one state or an ordered pair of states, returning a canonical answer and,
+            where relevant, the persistent instance IDs. <b>1,874 questions</b> over all 20 scenes in seven categories —
+            existence, counting, comparison, localization, appearance, disappearance, movement — and three difficulty levels,
+            proposed by an LLM from the verified scene graph and checked by human annotators.
+          </p>
+          <p>
+            Two zero-shot tracks: an image-free <em>LLM scene-graph</em> track (Qwen3.6-35B-A3B, textual graph + computed change lists)
+            and a <em>VLM</em> track (InternVL3-38B, per-state labelled minimaps + textual graph + deterministic solvers).
+            Scoring is exact-match with no partial credit.
+          </p>
+        </div>
+        <div class="column is-7">
+          <h4 class="title is-6 has-text-centered">Accuracy by question category (%)</h4>
+          <div class="chart" id="chart-eqa"></div>
+          <p class="bench-takeaway">
+            <b>Existence is easy; localization and movement are not.</b> Both tracks exceed 93 % on existence, but localization is the
+            weakest category for Qwen (57.6 %) and movement for InternVL (27.2 %), even with perfectly verified scene annotations as input.
+            Overall: 69.3 % (Qwen) and 52.7 % (InternVL); accuracy falls monotonically from easy to hard questions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DATA FORMAT ===================== -->
+<section class="section hero is-light" id="format">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Data format</h2>
+    <div class="columns" style="margin-top:1rem;">
+      <div class="column is-half">
+<pre class="tree">SceneGraphDataset/
+└── LocationNN/
+    ├── README.md                    # what changed between states
+    ├── labelmap.txt                 # instance classes and mask colors
+    ├── state1_segmentation.ply      # laser cloud + instance labels, state 1
+    ├── state2_segmentation.ply
+    ├── state3_segmentation.ply
+    ├── state1_art/                  # one folder per sequence
+    ├── state1_nat/
+    ├── state2_art/
+    ├── state2_nat/
+    └── state3_nat/
+        ├── rgb.zip
+        ├── depth.zip
+        ├── masks.zip
+        └── colmap_3.0_fps.zip</pre>
+      </div>
+      <div class="column is-half">
+        <h3 class="title is-5">Per sequence</h3>
+        <table class="table is-fullwidth is-narrow">
+          <tbody>
+            <tr><td>RGB frames</td><td><code>rgb.zip</code></td></tr>
+            <tr><td>Aligned depth frames</td><td><code>depth.zip</code></td></tr>
+            <tr><td>2D instance masks, every frame</td><td><code>masks.zip</code></td></tr>
+            <tr><td>Camera poses, COLMAP format, 3 fps</td><td><code>colmap_3.0_fps.zip</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="title is-5" style="margin-top:1.25rem;">Per scene</h3>
+        <div class="content" style="font-size:0.9rem;">
+          <ul>
+            <li><code>README.md</code> — object-level change list for state 1 → 2 and state 2 → 3</li>
+            <li><code>labelmap.txt</code> — instance classes and mask colors, shared by 2D and 3D labels</li>
+            <li><code>stateN_segmentation.ply</code> — reference point cloud with per-point instance labels, one per state</li>
+          </ul>
+        </div>
+
+        <h3 class="title is-5" style="margin-top:1.5rem;">Quick start</h3>
+        <span class="placeholder-note">command to be published once the download URL and archive layout are final</span>
+        <div class="field has-addons" style="margin-top:0.5rem;">
+          <div class="control is-expanded">
+            <input class="input is-family-monospace" type="text" readonly
+              value="[quick-start command placeholder — download one location + show a visual result]"
+              id="qs-command"
+              aria-label="Quick start command placeholder">
+          </div>
+          <div class="control">
+            <button class="button is-dark" type="button" id="copy-command" disabled title="Available once the real command is finalized">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DOWNLOAD ===================== -->
+<section class="section" id="download">
+  <div class="container is-max-desktop has-text-centered">
+    <h2 class="title is-3">Download</h2>
+    <p style="margin-bottom:1rem;">
+      Dataset, benchmark splits, evaluation code, and the exact test-frame indices for reproducible comparisons.
+      <br><span class="placeholder-note">final size, license, version &amp; permanent URL — TBD; de-anonymized upon acceptance</span>
+    </p>
+    <a class="button is-medium is-rounded is-dark" href="#" aria-disabled="true" onclick="return false;">
+      <span class="icon"><i class="fas fa-database"></i></span>
+      <span>Download SceneGraphDataset</span>
+    </a>
+    <p style="margin-top:.8rem;color:#666;font-size:.9rem;">
+      Version: TBD · Release date: TBD · Total size: TBD · License: TBD
+    </p>
+  </div>
+</section>
+
+<!-- ===================== BIBTEX ===================== -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{scenegraphdataset2027,
+  title     = {SceneGraphDataset},
+  author    = {TBD},
+  booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
+  year      = {2027},
+  note      = {Under review}
+}</code></pre>
+    <p style="font-size:0.9rem;color:#666;">
+      Paper: <i>link TBD</i> · Code / benchmarks: <i>link TBD</i> · Contact: <i>TBD</i>
+    </p>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="#download" aria-label="Download"><i class="fas fa-database"></i></a>
+      <a class="icon-link" href="#BibTeX" aria-label="BibTeX"><i class="fas fa-quote-right"></i></a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered" style="font-size:.85rem;color:#666;">
+          <p>
+            This website is based on the
+            <a href="https://github.com/nerfies/nerfies.github.io" target="_blank" rel="noopener">Nerfies project page</a>
+            template, licensed under
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>.
+            Scene visuals marked as placeholders are synthetic — replace with real dataset exports before public release.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
