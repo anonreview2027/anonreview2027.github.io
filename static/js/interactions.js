@@ -1,4 +1,4 @@
-/* Interactions for the SceneGraphDataset page */
+/* Interactions for the DACHA page */
 
 (function () {
   "use strict";

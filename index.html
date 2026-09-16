@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="SceneGraphDataset: real indoor RGB-D scenes captured in a 2×2 factorial of physical states and illumination plus a third state captured under natural light only, over survey-grade laser reference, with human-verified 2D and 3D instance masks and three benchmarks (SCD, OVVIS, EQA).">
+  <meta name="description" content="DACHA: real indoor RGB-D scenes captured in a 2×2 factorial of physical states and illumination plus a third state captured under natural light only, over survey-grade laser reference, with human-verified 2D and 3D instance masks and three benchmarks (SCD, OVVIS, EQA).">
   <meta name="keywords" content="dataset, RGB-D, scene change detection, open-vocabulary video instance segmentation, embodied question answering, indoor scenes, laser scan, instance segmentation">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SceneGraphDataset: Disentangling Layout and Illumination Change in Real Indoor Scenes</title>
+  <title>DACHA: Disentangled Appearance and Changes with High-fidelity Annotations</title>
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
   <link rel="stylesheet" href="./static/css/bulma.min.css">
@@ -50,7 +50,7 @@
       <div class="columns is-centered">
         <div class="column has-text-centered">
           <h1 class="title is-1 publication-title">
-            <span class="dnerf">SceneGraphDataset</span>: Disentangling Layout and Illumination Change in Real Indoor Scenes
+            <span class="dnerf">DACHA</span>: Disentangled Appearance and Changes with High-fidelity Annotations
           </h1>
 
           <div class="is-size-5 publication-authors">
@@ -166,16 +166,16 @@
             sources of change, or lack independent reference geometry to verify what actually changed.
           </p>
           <p>
-            We present <span class="dnerf">SceneGraphDataset</span>, an indoor RGB-D dataset designed to strictly disentangle
+            We present <span class="dnerf">DACHA</span>, an indoor RGB-D dataset designed to strictly disentangle
             layout modifications from illumination shifts. Each of 20 diverse real-world scenes is captured in a
             core 2 × 2 factorial design — two physical layout states observed under artificial and natural light, so that
             any two sequences in the same row or column differ in exactly one factor — supplemented by a third, high-clutter state
-            captured under natural light only. Every state is grounded in a terrestrial laser scan,
+            captured under natural light only. Every state is grounded in an independent terrestrial laser scan,
             and every RGB frame carries a manually labelled and verified instance mask whose identity persists across
             frames, sequences, and states. We introduce three benchmarks on top of the data — Scene Change Detection,
             Open-Vocabulary Video Instance Segmentation, and Embodied Question Answering — and show that state-of-the-art
-            models still hallucinate changes under illumination shifts, lose track of small and rare objects, and struggle
-            to reason about how a scene evolved.
+            models remain sensitive to illumination shifts, show clear limitations in fine-grained temporal tracking,
+            and lose accuracy on spatial grounding and change questions.
           </p>
         </div>
       </div>
@@ -188,7 +188,7 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Three things you cannot get elsewhere</h2>
+        <h2 class="title is-3">What sets DACHA apart</h2>
       </div>
     </div>
 
@@ -242,16 +242,16 @@
       <div class="column is-full">
         <h3 class="title is-5 has-text-centered">The lighting gap is real and it varies</h3>
         <p class="has-text-centered" style="color:#555;font-size:0.95rem;">
-          Press and hold a tile (or hover) to switch from artificial to natural light. Some rooms barely change; some flip completely.
-          Windowless rooms get the natural condition emulated with auxiliary lamps.
+          Press and hold a tile (or hover) to switch from artificial to natural light. These four locations show how far
+          the two conditions can drift apart. Windowless rooms get the natural condition emulated with auxiliary lamps.
         </p>
         <div class="light-strip" id="light-strip">
-          <figure class="ph light-tile" data-variant="0"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="0" viewBox="0 0 320 200"></svg><figcaption>office · strong daylight</figcaption></figure>
-          <figure class="ph light-tile" data-variant="1"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="1" viewBox="0 0 320 200"></svg><figcaption>laboratory · mild</figcaption></figure>
+          <figure class="ph light-tile" data-variant="0"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="0" viewBox="0 0 320 200"></svg><figcaption>office · direct daylight</figcaption></figure>
+          <figure class="ph light-tile" data-variant="1"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="1" viewBox="0 0 320 200"></svg><figcaption>classroom · large windows</figcaption></figure>
           <figure class="ph light-tile" data-variant="2"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="2" viewBox="0 0 320 200"></svg><figcaption>kitchen · warm daylight</figcaption></figure>
           <figure class="ph light-tile" data-variant="3"><svg class="scene-ph" data-mod="rgb" data-state="1" data-light="art" data-variant="3" viewBox="0 0 320 200"></svg><figcaption>warehouse · windowless, emulated</figcaption></figure>
         </div>
-        <p class="has-text-centered"><span class="placeholder-note">placeholder tiles — pick 4 locations with visibly different art/nat gaps</span></p>
+        <p class="has-text-centered"><span class="placeholder-note">placeholder tiles — replace with the four locations where the art/nat gap is largest</span></p>
       </div>
     </div>
   </div>
@@ -332,7 +332,7 @@
             <tr><th scope="row">RGB-D</th><td>Intel RealSense D456, global shutter, 1280 × 800 @ 30 fps, hardware-aligned depth</td></tr>
             <tr><th scope="row">Reference</th><td>Leica BLK360 G1 terrestrial laser scan per state in Standard density mode: 10 mm resolution at 10 m, 6 mm 3D point accuracy at 10 m; HDR panoramas</td></tr>
             <tr><th scope="row">Capture</th><td>Handheld walkthrough of 1–3 min per sequence; one operator per scene for trajectory consistency</td></tr>
-            <tr><th scope="row">Poses</th><td>COLMAP over RGB frames + scanner thumbnails, Umeyama/RANSAC alignment to the laser frame, ICP across states; 3 fps</td></tr>
+            <tr><th scope="row">Poses</th><td>Estimated with COLMAP at 3 fps and registered into one coordinate frame shared by all states of a scene; see the paper for the alignment details</td></tr>
           </tbody>
         </table>
       </div>
@@ -422,7 +422,7 @@
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">Dataset at a glance</h2>
     <div class="columns is-multiline is-centered" style="margin-top:0.5rem;">
-      <div class="column is-3"><div class="stat-box"><div class="num">100</div><div class="lbl">RGB-D sequences<br><small>20 scenes × (2 × 2 core + state 3 · nat)</small></div></div></div>
+      <div class="column is-3"><div class="stat-box"><div class="num">100</div><div class="lbl">RGB-D sequences<br><small>20 scenes × (2 × 2 core + state 3 · nat) · 2.5 h+ of video</small></div></div></div>
       <div class="column is-3"><div class="stat-box"><div class="num">2,301</div><div class="lbl">labelled instances<br><small>49–187 per scene, mean 115</small></div></div></div>
       <div class="column is-3"><div class="stat-box"><div class="num">60</div><div class="lbl">laser reference scans<br><small>one per scene state</small></div></div></div>
       <div class="column is-3"><div class="stat-box"><div class="num">12</div><div class="lbl">room types<br><small>homes, offices, labs, a workshop, a warehouse…</small></div></div></div>
@@ -482,9 +482,10 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Three benchmarks, one perception-to-reasoning pipeline</h2>
+        <h2 class="title is-3">Three independent benchmarks</h2>
         <p style="color:#555;">
-          From detecting that something changed, to tracking every object through time, to answering questions about how the scene evolved.
+          Each one targets a different use of the data: detecting that something changed, tracking every object through time,
+          and answering questions about how a scene evolved.
           All baselines run out of the box with official weights — no fine-tuning on our data.
         </p>
       </div>
@@ -523,6 +524,7 @@
             <b>Lighting alone fools every method.</b> On <code>state1_nat</code> nothing physically changed, yet specificity drops for all three
             methods compared with <code>state1_art</code> — they hallucinate geometric change from appearance.
             GeSCF is the most accurate overall; GeoSCD recalls the most but over-predicts at ~17 s per pair; RSCD is fastest (0.37 s) but least precise.
+            Timings are measured on one NVIDIA A40.
           </p>
         </div>
       </div>
@@ -544,7 +546,7 @@
           <h4 class="title is-6 has-text-centered">HOTA by label split, averaged over the six locations</h4>
           <div class="chart" id="chart-ovvis"></div>
           <p class="bench-takeaway">
-            <b>Small and rare objects are where tracking breaks.</b> SAM3 leads by a wide margin (HOTA 18.2 vs. &lt; 3 for GLEE and Ov2Seg) at 2.9 s per frame,
+            <b>Small and rare objects are where tracking breaks.</b> SAM3 leads by a wide margin (HOTA 18.2 vs. &lt; 3 for GLEE and Ov2Seg) at 2.9 s per frame on an A40,
             yet loses more than half of its score from large to small objects (32.5 → 13.4) and drops sharply on uncommon classes.
             Cluttered locations push the lighter models to near zero.
           </p>
@@ -589,7 +591,7 @@
     <h2 class="title is-3 has-text-centered">Data format</h2>
     <div class="columns" style="margin-top:1rem;">
       <div class="column is-half">
-<pre class="tree">SceneGraphDataset/
+<pre class="tree">DACHA/
 └── LocationNN/
     ├── README.md                    # what changed between states
     ├── labelmap.txt                 # instance classes and mask colors
@@ -654,7 +656,7 @@
     </p>
     <a class="button is-medium is-rounded is-dark" href="#" aria-disabled="true" onclick="return false;">
       <span class="icon"><i class="fas fa-database"></i></span>
-      <span>Download SceneGraphDataset</span>
+      <span>Download DACHA</span>
     </a>
     <p style="margin-top:.8rem;color:#666;font-size:.9rem;">
       Version: TBD · Release date: TBD · Total size: TBD · License: TBD
@@ -666,8 +668,8 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>@inproceedings{scenegraphdataset2027,
-  title     = {SceneGraphDataset},
+    <pre><code>@inproceedings{dacha2027,
+  title     = {DACHA: Disentangled Appearance and Changes with High-fidelity Annotations},
   author    = {TBD},
   booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
   year      = {2027},

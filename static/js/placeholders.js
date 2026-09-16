@@ -1,4 +1,4 @@
-/* SVG placeholder generator for the SceneGraphDataset page.
+/* SVG placeholder generator for the DACHA page.
    One synthetic room rendered as RGB / depth / mask / cloud / poses / change / topdown,
    in three cumulative states and two illumination conditions.
 
@@ -133,23 +133,28 @@
     return `rgb(${v},${v},${v})`;
   }
 
-  /* Illumination overlays. `variant` mimics rooms with different art/nat gaps:
-     0 strong daylight, 1 mild, 2 warm, 3 windowless (emulated with lamps). */
+  /* Illumination overlays. `variant` mimics four rooms with a clearly visible
+     art/nat gap: 0 direct daylight, 1 cool daylight, 2 warm daylight,
+     3 windowless (the natural condition emulated with lamps). */
   function lightOverlay(light, variant) {
     const v = variant || 0;
     if (light === "art") {
-      return `<rect x="0" y="0" width="320" height="200" fill="#3a2f14" opacity="0.32"/>
-              <circle cx="160" cy="8" r="120" fill="#ffd98a" opacity="0.22"/>`;
+      // the four tiles stand for four different rooms, so vary the lamp
+      // colour and intensity a little between variants
+      const lamp = ["#ffd98a", "#e8f0ff", "#ffcf7a", "#fff4cc"][v];
+      const dim = [0.32, 0.26, 0.36, 0.3][v];
+      return `<rect x="0" y="0" width="320" height="200" fill="#3a2f14" opacity="${dim}"/>
+              <circle cx="160" cy="8" r="120" fill="${lamp}" opacity="0.22"/>`;
     }
     if (v === 3) {
       return `<rect x="0" y="0" width="320" height="200" fill="#1a1a2a" opacity="0.22"/>
               <circle cx="60" cy="40" r="90" fill="#fff1c0" opacity="0.28"/>
               <circle cx="270" cy="60" r="70" fill="#fff1c0" opacity="0.2"/>`;
     }
-    const strength = v === 1 ? 0.22 : v === 2 ? 0.4 : 0.5;
-    const tint = v === 2 ? "#ffe3b0" : "#fff6d8";
+    const strength = v === 2 ? 0.42 : 0.5;
+    const tint = v === 2 ? "#ffe3b0" : v === 1 ? "#eef4ff" : "#fff6d8";
     return `<polygon points="228,18 294,18 320,200 190,200" fill="${tint}" opacity="${strength}"/>
-            <rect x="0" y="0" width="320" height="200" fill="#dfe8f5" opacity="${v === 1 ? 0.08 : 0.16}"/>`;
+            <rect x="0" y="0" width="320" height="200" fill="#dfe8f5" opacity="${v === 1 ? 0.22 : 0.16}"/>`;
   }
 
   /* Boxes relative to state 1 (none in state 1 itself). */

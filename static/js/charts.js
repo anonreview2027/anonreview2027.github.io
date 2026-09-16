@@ -1,4 +1,4 @@
-/* Minimal SVG bar charts for the SceneGraphDataset page.
+/* Minimal SVG bar charts for the DACHA page.
    Grouped (optionally stacked) columns with a legend, hover tooltip, and a
    table-view toggle. No dependencies. */
 
